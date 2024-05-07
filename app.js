@@ -31,13 +31,20 @@ function getUserData() {
     .then(user => {
         document.getElementById('user-info').innerHTML = `Bienvenido, ${user.name}`;
         // Mostrar más datos del usuario si es necesario
+
+       const idUsuario = user.id
+       console.log(idUsuario)
+       return idUsuario
     })
     .catch(error => console.error('Error:', error));
+
+    
 }
 
 window.onload = function() {
     if (window.location.pathname.includes('dashboard.html')) {
         getUserData(); // Llamar a obtener datos del usuario solo en el dashboard
+        loadNotes();
     }
 };
 
@@ -63,24 +70,76 @@ function createNote() {
     .catch(error => console.error('Error:', error));
 }
 
-
-
-function loadNotes() {
-    fetch(`${apiUrl2}/todo`, {
-        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
-    })
-    .then(response => response.json())
-    .then(notes => {
-        console.log(notes)
-        const notesList = document.getElementById('notes-list');
-        notesList.innerHTML = '';
-        notes.forEach(note => {
-            const noteElement = document.createElement('div');
-            noteElement.innerHTML = `<h4>${note.nombre_tarea}</h4>`;
-            notesList.appendChild(noteElement);
+async function getUserId() {
+    try {
+        const response = await fetch(`${apiUrl}/auth/me`, {
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+            }
         });
-    })
-    .catch(error => console.error('Error:', error));
+
+        if (!response.ok) {
+            throw new Error(`Error en la solicitud: ${response.status}`);
+        }
+
+        const userData = await response.json();
+        return userData.id; // Suponiendo que el campo `id` contiene el ID del usuario
+    } catch (error) {
+        console.error('Error al obtener el ID del usuario:', error);
+        return null;
+    }
 }
 
-// Agregar funciones para actualizar y eliminar notas... 
+/**
+ * Función para cargar y filtrar notas desde la API basadas en el ID del usuario autenticado.
+ */
+async function loadNotes() {
+    const userId = await getUserId(); // Obtén el ID del usuario autenticado
+  
+
+    if (userId === null) {
+        console.error('No se pudo obtener el ID del usuario.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${apiUrl2}/todo`, {
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error en la solicitud: ${response.status}`);
+        }
+
+        const allNotes = await response.json();
+        
+
+        // Filtra las notas para obtener solo las que corresponden al usuario autenticado
+        const userNotes = allNotes.filter(note => note.user_id === userId);
+        console.log(userNotes)
+
+        // Mostrar las notas del usuario autenticado
+        const notesList = document.getElementById('notes-list');
+        notesList.innerHTML = ''; // Limpiar la lista antes de mostrar nuevas notas
+
+        if (userNotes.length === 0) {
+            notesList.innerHTML = '<p>No hay notas disponibles para este usuario.</p>';
+        } else {
+            userNotes.forEach(note => {
+                const noteElement = document.createElement('div');
+                noteElement.classList.add('note-item');
+                noteElement.innerHTML = `
+                    <h4>${note.nombre_tarea}</h4>
+                    <button onclick="updateNote(${note.id})">Editar</button>
+                    <button onclick="deleteNote(${note.id})">Eliminar</button>
+                `;
+                notesList.appendChild(noteElement);
+            });
+        }
+    } catch (error) {
+        console.error('Error al cargar las notas:', error);
+    }
+}
+

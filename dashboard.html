@@ -8,10 +8,17 @@
 </head>
 <body>
     <div id="user-info"></div>
+    <h1>Crear una Nueva Nota</h1>
+    <form id="note-form" onsubmit="createNote(event)">
+        <label for="task-name">Nombre de la Tarea:</label>
+        <input type="text" id="task-name" name="nombre_tarea" required>
+
+        <button type="submit">Crear Nota</button>
+    </form>
+    
     <div id="user-id"></div>
     <div id="notes-list"></div>
     <button onclick="loadNotes()">cargar notas</button>
-    <button onclick="getUser()">cargar info usuario autenticado</button>
 
     <button id="logout-button" onclick="logout()">Cerrar Sesión</button>
     <script src="app.js"></script>

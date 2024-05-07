@@ -143,3 +143,20 @@ async function loadNotes() {
     }
 }
 
+
+/**
+ * Función para cerrar sesión y redirigir al usuario a index.html
+ */
+function logout() {
+    // Elimina los datos de autenticación
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+
+    // Redirige al usuario a la página de inicio
+    window.location.href = 'index.html';
+}
+
+
+
+
+

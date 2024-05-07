@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#auth, #note-app {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+input, textarea, button {
+    margin: 10px 0;
+    padding: 5px 3px;
+}
+
+textarea {
+    height: 100px;
+}
+
+/* Continuación de styles.css */
+#user-info {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 20px 0;
+    font-size: 1.2em;
+}
+
